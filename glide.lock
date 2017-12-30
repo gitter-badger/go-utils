@@ -6,10 +6,6 @@ testImports:
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
   subpackages:
   - spew
-- name: github.com/mailoman/go-utils
-  version: 90f287b61ab77e2b29ee51b5a0ffa1e72ca833c3
-  subpackages:
-  - mapping
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
