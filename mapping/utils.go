@@ -10,10 +10,12 @@ var (
 	isTrue = true
 )
 
+// MapAllFieldsStrict applies values from one struct fields to another provided via corresponding arguments, strict types
 func MapAllFieldsStrict(from, to interface{}) error {
 	return MapAllFields(from, to, &isTrue)
 }
 
+// MapAllFieldsStrict applies values from one struct fields to another provided via corresponding arguments, types checking
 func MapAllFields(from, to interface{}, strict *bool) error {
 	e := reflect.ValueOf(from)
 	outs := reflect.ValueOf(to)
@@ -56,9 +58,8 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 		if _, ok := ofields[e.Type().Field(i).Name]; !ok {
 			if strict != nil && *strict == true {
 				return errors.New("failed to find field in output[1]: " + e.Type().Field(i).Name)
-			} else {
-				continue
 			}
+			continue
 		}
 
 		of := outs.FieldByName(e.Type().Field(i).Name)
