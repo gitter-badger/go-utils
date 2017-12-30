@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"mailoman/go-utils/mapping"
+	"github.com/mailoman/go-utils/mapping"
 )
 
 type case0 struct {
