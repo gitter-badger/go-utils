@@ -11,8 +11,8 @@ install:
 before_script:
 script:
   - glide install
-  - GO15VENDOREXPERIMENT=1 go build .
-  - GO15VENDOREXPERIMENT=1 go test $(glide novendor)
-  - go vet . ./mapping
+  - GO15VENDOREXPERIMENT=1 go build ./mapping
+  - GO15VENDOREXPERIMENT=1 go test $(glide novendor) -c -covermode=atomic -i
+  - go vet ./mapping
   - golint .
   - golint mapping
