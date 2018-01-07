@@ -74,6 +74,16 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 					of.SetInt(f.Int())
 				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 					of.SetInt(int64(f.Uint()))
+				case reflect.Float32, reflect.Float64:
+					of.SetInt(int64(f.Float()))
+				case reflect.Bool:
+					of.SetInt(map[bool]int64{false: 0, true: 1}[f.Bool()])
+				case reflect.String:
+					val, err := strconv.Atoi(f.String())
+					if err != nil {
+						continue
+					}
+					of.SetInt(int64(val))
 				default:
 					return errors.New("failed to set field " + e.Type().Field(i).Name + " type " + f.Type().String() + " to " + of.Type().String())
 				}
@@ -83,6 +93,16 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 					of.SetUint(uint64(f.Int()))
 				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 					of.SetUint(f.Uint())
+				case reflect.Float32, reflect.Float64:
+					of.SetUint(uint64(f.Float()))
+				case reflect.Bool:
+					of.SetUint(map[bool]uint64{false: 0, true: 1}[f.Bool()])
+				case reflect.String:
+					val, err := strconv.Atoi(f.String())
+					if err != nil {
+						continue
+					}
+					of.SetUint(uint64(val))
 				default:
 					return errors.New("failed to set field " + e.Type().Field(i).Name + " type " + f.Type().String() + " to " + of.Type().String())
 				}
@@ -100,6 +120,9 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 						of.Set(reflect.ValueOf(&x))
 					case "float32", "float64":
 						x := int64(f.Float())
+						of.Set(reflect.ValueOf(&x))
+					case "bool":
+						x := map[bool]int64{false: 0, true: 1}[f.Bool()]
 						of.Set(reflect.ValueOf(&x))
 					case "string":
 						val, err := strconv.Atoi(f.String())
@@ -119,6 +142,9 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 						of.Set(reflect.ValueOf(&x))
 					case "float32", "float64":
 						x := uint64(f.Float())
+						of.Set(reflect.ValueOf(&x))
+					case "bool":
+						x := map[bool]uint64{false: 0, true: 1}[f.Bool()]
 						of.Set(reflect.ValueOf(&x))
 					case "string":
 						val, err := strconv.Atoi(f.String())

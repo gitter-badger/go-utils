@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mailoman/go-utils/mapping"
+	"mailoman/go-utils/mapping"
 )
 
 type case0 struct {
@@ -89,7 +89,19 @@ type case11 struct {
 }
 
 type case12 struct {
-	Field0  int64  `json:"field0"`
+	Field0 int64 `json:"field0"`
+}
+
+type case13 struct {
+	Field2  float64 `json:"field2"`
+	Field8  bool    `json:"field8"`
+	Field15 string  `json:"field15"`
+}
+
+type case14 struct {
+	Field13 float64 `json:"field13"`
+	Field14 bool    `json:"field14"`
+	Field16 string  `json:"field16"`
 }
 
 type output struct {
@@ -109,6 +121,8 @@ type output struct {
 	Field12 *uint64           `json:"field12"`
 	Field13 uint32            `json:"field13"`
 	Field14 uint64            `json:"field14"`
+	Field15 int               `json:"field15"`
+	Field16 uint              `json:"field16"`
 }
 
 var (
@@ -581,4 +595,42 @@ func TestMapAllFieldsStrict_Cases6_1(t *testing.T) {
 	a.Equal(orig.Field1, to.Field1)
 	a.Equal(from.Field9, *to.Field9)
 	a.Equal(from.Field10, *to.Field10)
+}
+
+func TestMapAllFieldsStrict_Cases7_1(t *testing.T) {
+	// from values to values: float/bool/string to int64/int32/int
+	a := assert.New(t)
+	from := case13{
+		Field2:  float64(55),
+		Field8:  true,
+		Field15: "101",
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(orig.Field1, to.Field1)
+	a.Equal(int64(55), to.Field2)
+	a.Equal(int32(1), to.Field8)
+	a.Equal(int(101), to.Field15)
+}
+
+func TestMapAllFieldsStrict_Cases8_1(t *testing.T) {
+	// from values to values: float/bool/string to uint64/uint32/uint
+	a := assert.New(t)
+	from := case14{
+		Field13: float64(55),
+		Field14: true,
+		Field16: "101",
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(orig.Field1, to.Field1)
+	a.Equal(uint32(55), to.Field13)
+	a.Equal(uint64(1), to.Field14)
+	a.Equal(uint(101), to.Field16)
 }
