@@ -15,7 +15,7 @@ func MapAllFieldsStrict(from, to interface{}) error {
 	return MapAllFields(from, to, &isTrue)
 }
 
-// MapAllFieldsStrict applies values from one struct fields to another provided via corresponding arguments, types checking
+// MapAllFields applies values from one struct fields to another provided via corresponding arguments, types checking
 func MapAllFields(from, to interface{}, strict *bool) error {
 	e := reflect.ValueOf(from)
 	outs := reflect.ValueOf(to)
