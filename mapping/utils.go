@@ -107,7 +107,26 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 					return errors.New("failed to set field " + e.Type().Field(i).Name + " type " + f.Type().String() + " to " + of.Type().String())
 				}
 			case reflect.Float32, reflect.Float64:
-				of.SetFloat(f.Float())
+				switch f.Kind() {
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					of.SetFloat(float64(f.Int()))
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					of.SetFloat(float64(f.Uint()))
+				case reflect.Float32, reflect.Float64:
+					of.SetFloat(f.Float())
+				case reflect.Bool:
+					of.SetFloat(map[bool]float64{false: 0.0, true: 1.0}[f.Bool()])
+				case reflect.String:
+					val, err := strconv.ParseFloat(f.String(), 64)
+					if err != nil {
+						continue
+					}
+					of.SetFloat(val)
+				default:
+					return errors.New("failed to set field " + e.Type().Field(i).Name + " type " + f.Type().String() + " to " + of.Type().String())
+				}
+
+
 			case reflect.Ptr:
 				switch of.Type().String() {
 				case "*int", "*int8", "*int16", "*int32", "*int64":
@@ -153,6 +172,48 @@ func MapAllFields(from, to interface{}, strict *bool) error {
 						}
 						x := uint64(val)
 						of.Set(reflect.ValueOf(&x))
+					}
+				case "*float32", "*float64":
+					switch f.Type().String() {
+					case "int", "int8", "int16", "int32", "int64":
+						x := float64(f.Int())
+						of.Set(reflect.ValueOf(&x))
+					case "uint", "uint8", "uint16", "uint32", "uint64":
+						x := float64(f.Uint())
+						of.Set(reflect.ValueOf(&x))
+					case "float32", "float64":
+						x := f.Float()
+						of.Set(reflect.ValueOf(&x))
+					case "bool":
+						x := map[bool]float64{false: 0.0, true: 1.0}[f.Bool()]
+						of.Set(reflect.ValueOf(&x))
+					case "string":
+						val, err := strconv.ParseFloat(f.String(), 64)
+						if err != nil {
+							continue
+						}
+						of.Set(reflect.ValueOf(&val))
+					}
+				case "*bool":
+					switch f.Type().String() {
+					case "int", "int8", "int16", "int32", "int64":
+						x := f.Int() == 0
+						of.Set(reflect.ValueOf(&x))
+					case "uint", "uint8", "uint16", "uint32", "uint64":
+						x := f.Uint() == 0
+						of.Set(reflect.ValueOf(&x))
+					case "float32", "float64":
+						x := f.Float() == float64(0)
+						of.Set(reflect.ValueOf(&x))
+					case "bool":
+						x := f.Bool()
+						of.Set(reflect.ValueOf(&x))
+					case "string":
+						val, err := strconv.ParseBool(f.String())
+						if err != nil {
+							continue
+						}
+						of.Set(reflect.ValueOf(&val))
 					}
 				}
 			case reflect.Bool:

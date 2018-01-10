@@ -49,6 +49,7 @@ type case5 struct {
 	Field10 int64  `json:"field10"`
 	Field11 string `json:"field11"`
 	Field12 string `json:"field12"`
+	Field21 string `json:"field21"`
 }
 
 type case6 struct {
@@ -85,6 +86,8 @@ type case10 struct {
 type case11 struct {
 	Field9  int64  `json:"field9"`
 	Field10 uint64 `json:"field10"`
+	Field11 bool   `json:"field11"`
+	Field12 bool   `json:"field12"`
 }
 
 type case12 struct {
@@ -101,6 +104,14 @@ type case14 struct {
 	Field13 float64 `json:"field13"`
 	Field14 bool    `json:"field14"`
 	Field16 string  `json:"field16"`
+}
+
+type case15 struct {
+	Field7  int64   `json:"field7"`
+	Field17 string  `json:"field17"`
+	Field18 bool    `json:"field18"`
+	Field19 float32 `json:"field19"`
+	Field20 uint    `json:"field20"`
 }
 
 type output struct {
@@ -122,6 +133,11 @@ type output struct {
 	Field14 uint64            `json:"field14"`
 	Field15 int               `json:"field15"`
 	Field16 uint              `json:"field16"`
+	Field17 float32           `json:"field17"`
+	Field18 float64           `json:"field18"`
+	Field19 float32           `json:"field19"`
+	Field20 float64           `json:"field20"`
+	Field21 *bool             `json:"field21"`
 }
 
 var (
@@ -475,13 +491,14 @@ func TestMapAllFieldsStrict_Cases4_1(t *testing.T) {
 }
 
 func TestMapAllFieldsStrict_Cases4_2(t *testing.T) {
-	// from values to refs, cross-type harder
+	// from values to refs, cross-type harder: string to int/uint/bool
 	a := assert.New(t)
 	str := "123"
 	// subcase2
 	from := case5{
 		Field11: str,
 		Field12: str,
+		Field21: "true",
 	}
 	to := &output{}
 	*to = *orig
@@ -491,6 +508,7 @@ func TestMapAllFieldsStrict_Cases4_2(t *testing.T) {
 	a.Equal(orig.Field1, to.Field1)
 	a.Equal(from.Field11, strconv.FormatInt(*to.Field11, 10))
 	a.Equal(from.Field12, strconv.FormatInt(int64(*to.Field12), 10))
+	a.Equal(true, *to.Field21)
 }
 
 func TestMapAllFieldsStrict_Cases4_3(t *testing.T) {
@@ -585,6 +603,8 @@ func TestMapAllFieldsStrict_Cases6_1(t *testing.T) {
 	from := case11{
 		Field9:  i64,
 		Field10: ui64,
+		Field11: true,
+		Field12: true,
 	}
 	to := &output{}
 	*to = *orig
@@ -594,6 +614,8 @@ func TestMapAllFieldsStrict_Cases6_1(t *testing.T) {
 	a.Equal(orig.Field1, to.Field1)
 	a.Equal(from.Field9, *to.Field9)
 	a.Equal(from.Field10, *to.Field10)
+	a.Equal(int64(1), *to.Field11)
+	a.Equal(uint64(1), *to.Field12)
 }
 
 func TestMapAllFieldsStrict_Cases7_1(t *testing.T) {
@@ -615,6 +637,20 @@ func TestMapAllFieldsStrict_Cases7_1(t *testing.T) {
 	a.Equal(int(101), to.Field15)
 }
 
+func TestMapAllFieldsStrict_Cases7_2(t *testing.T) {
+	// failed: from values to values: string to int
+	a := assert.New(t)
+	from := case13{
+		Field15: "101 wrong!",
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(int(0), to.Field15)
+}
+
 func TestMapAllFieldsStrict_Cases8_1(t *testing.T) {
 	// from values to values: float/bool/string to uint64/uint32/uint
 	a := assert.New(t)
@@ -632,4 +668,56 @@ func TestMapAllFieldsStrict_Cases8_1(t *testing.T) {
 	a.Equal(uint32(55), to.Field13)
 	a.Equal(uint64(1), to.Field14)
 	a.Equal(uint(101), to.Field16)
+}
+
+func TestMapAllFieldsStrict_Cases8_2(t *testing.T) {
+	// failed: from values to values: string to uint
+	a := assert.New(t)
+	from := case14{
+		Field16: "1001 wrong!",
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(orig.Field1, to.Field1)
+	a.Equal(uint(0), to.Field16)
+}
+
+func TestMapAllFieldsStrict_Cases9_1(t *testing.T) {
+	// from values to values: float/bool/string/int to uint
+	a := assert.New(t)
+	from := case15{
+		Field7:  64,
+		Field17: "550.123",
+		Field18: true,
+		Field19: 101.98,
+		Field20: uint(1000),
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(orig.Field1, to.Field1)
+	a.Equal(float64(64.0), to.Field7)
+	a.Equal(float32(550.123), to.Field17)
+	a.Equal(float64(1), to.Field18)
+	a.Equal(float32(101.98), to.Field19)
+	a.Equal(float64(1000), to.Field20)
+}
+
+func TestMapAllFieldsStrict_Cases9_2(t *testing.T) {
+	// failed: from values to values: string to float
+	a := assert.New(t)
+	from := case15{
+		Field17: "550 wrong!",
+	}
+	to := &output{}
+	*to = *orig
+
+	err := mapping.MapAllFieldsStrict(from, to)
+	a.Nil(err)
+	a.Equal(float32(0), to.Field17)
 }

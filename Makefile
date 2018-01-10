@@ -1,6 +1,6 @@
 PROJECT_NAME := "go-utils"
 PKG := "github.com/mailoman/$(PROJECT_NAME)"
-PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
+PKG_LIST := $(shell go list ${PKG}/mapping | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
 .PHONY: dep clean test coverage coverhtml lint
@@ -32,4 +32,5 @@ clean: ## Remove previous build
 	@rm -f $(PROJECT_NAME)
 
 help: ## Display this help screen
+	@print "$PKG_LIST"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
