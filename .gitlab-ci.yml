@@ -17,6 +17,8 @@ before_script:
   - cp -r $CI_PROJECT_DIR /go/src/github.com/mailoman/go-utils
   - ln -s /go/src/github.com/mailoman /go/src/_/builds/mailoman
   - export CC=clang-5.0
+  - export GOPATH=/go
+  - cd /go/src/github.com/mailoman/go-utils
   - make dep
 
 unit_tests:
